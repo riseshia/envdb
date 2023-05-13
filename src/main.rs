@@ -59,6 +59,7 @@ fn main() {
             match envdb::get(target_env_path, key) {
                 Ok(env_pair) => {
                     println!("{}", env_pair.value);
+                    exit(exitcode::OK);
                 },
                 Err(err_msg) => {
                     eprintln!("{}", err_msg);
