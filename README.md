@@ -1,6 +1,6 @@
 ## What is
 
-CLI to handle env file like db
+CLI to handle env file like db.
 
 ## Build
 
