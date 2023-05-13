@@ -62,7 +62,7 @@ fn main() {
                 },
                 Err(err_msg) => {
                     eprintln!("{}", err_msg);
-                    exit(exitcode::DATAERR);
+                    exit(1); // XXX: could be better?
                 }
             }
         },
