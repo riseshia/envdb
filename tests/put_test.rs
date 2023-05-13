@@ -1,5 +1,4 @@
 use std::process::Command;
-use std::fs;
 
 #[test]
 fn test_put_successful() {
@@ -41,7 +40,7 @@ fn test_put_successful() {
 #[test]
 fn test_put_successful_with_not_found() {
     let origin_env_path = "tests/.test-env";
-    let target_env_path = "tests/.test-env-successful-with-not-found";
+    let target_env_path = "tests/.test-env-put-successful-with-not-found";
     if let Err(err) = std::fs::copy(origin_env_path, target_env_path) {
         panic!("Fail to copy origin env to test own env: {}", err);
     }

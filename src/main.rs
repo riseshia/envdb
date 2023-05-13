@@ -47,7 +47,7 @@ fn main() {
                         .default_value(".env")
                 )
                 .arg(
-                    Arg::new("prefix").required(true)
+                    Arg::new("key_prefix").required(true)
                 )
         );
 
@@ -82,7 +82,24 @@ fn main() {
             }
         },
         Some(("scan", matches)) => {
-            exit(exitcode::OK);
+            let target_env_path = matches.get_one::<std::path::PathBuf>("target-env").unwrap();
+            let key_prefix = matches.get_one::<String>("key_prefix").unwrap();
+            match envdb::scan(target_env_path, key_prefix) {
+                Ok(env_pairs) => {
+                    if env_pairs.is_empty() {
+                        exit(1);
+                    } else {
+                        for env_pair in env_pairs {
+                            println!("{}", env_pair.to_line());
+                        }
+                        exit(exitcode::OK);
+                    }
+                },
+                Err(err_msg) => {
+                    eprintln!("{}", err_msg);
+                    exit(1); // XXX: could be better?
+                }
+            }
         },
         _ => unreachable!("clap should ensure we don't get here"),
     }

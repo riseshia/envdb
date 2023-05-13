@@ -11,7 +11,7 @@ pub struct EnvPair {
 }
 
 impl EnvPair {
-    fn to_line(&self) -> String {
+    pub fn to_line(&self) -> String {
         format!("{}={}", self.key, self.value)
     }
 }
@@ -45,6 +45,31 @@ pub fn get(target_env_path: &Path, key: &str) -> Result<EnvPair, String> {
             }
         }
         Err(format!("Not found key in env file: {}", target_env_path_str))
+    } else {
+        Err(format!("Failed to open the file: {}", target_env_path_str))
+    }
+}
+
+pub fn scan(target_env_path: &Path, key_prefix: &str) -> Result<Vec<EnvPair>, String> {
+    let target_env_path_str = target_env_path.to_str().expect("Fail to convert env path to string");
+
+    if let Ok(file) = fs::File::open(target_env_path) {
+        let reader = io::BufReader::new(file);
+
+        let mut matched_pairs = vec![];
+
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                if line.starts_with(&key_prefix) {
+                    let env_pair = line_to_env_pair(&line);
+                    matched_pairs.push(env_pair);
+                }
+            } else {
+                return Err(format!("Failed to read a line in env file: {}", target_env_path_str));
+            }
+        }
+
+        Ok(matched_pairs)
     } else {
         Err(format!("Failed to open the file: {}", target_env_path_str))
     }
