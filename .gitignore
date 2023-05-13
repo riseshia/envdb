@@ -1,4 +1,5 @@
 /target
+/tests/.test-env-*
 
 
 # Added by cargo

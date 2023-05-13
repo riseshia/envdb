@@ -68,7 +68,18 @@ fn main() {
             }
         },
         Some(("put", matches)) => {
-            exit(exitcode::OK);
+            let target_env_path = matches.get_one::<std::path::PathBuf>("target-env").unwrap();
+            let key = matches.get_one::<String>("key").unwrap();
+            let value = matches.get_one::<String>("value").unwrap();
+            match envdb::put(target_env_path, key, value) {
+                Ok(_) => {
+                    exit(exitcode::OK);
+                },
+                Err(err_msg) => {
+                    eprintln!("{}", err_msg);
+                    exit(1); // XXX: could be better?
+                }
+            }
         },
         Some(("scan", matches)) => {
             exit(exitcode::OK);
