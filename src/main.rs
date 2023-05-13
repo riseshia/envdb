@@ -49,6 +49,19 @@ fn main() {
                 .arg(
                     Arg::new("key_prefix").required(true)
                 )
+        )
+        .subcommand(
+            clap::command!("delete")
+            .arg(
+                Arg::new("target-env")
+                .long("target-env")
+                .value_name("PATH")
+                .value_parser(clap::value_parser!(std::path::PathBuf))
+                .default_value(".env")
+                )
+            .arg(
+                Arg::new("key").required(true)
+                )
         );
 
     let matches = cmd.get_matches();
@@ -94,6 +107,19 @@ fn main() {
                         }
                         exit(exitcode::OK);
                     }
+                },
+                Err(err_msg) => {
+                    eprintln!("{}", err_msg);
+                    exit(1); // XXX: could be better?
+                }
+            }
+        },
+        Some(("delete", matches)) => {
+            let target_env_path = matches.get_one::<std::path::PathBuf>("target-env").unwrap();
+            let key = matches.get_one::<String>("key").unwrap();
+            match envdb::delete(target_env_path, key) {
+                Ok(_) => {
+                    exit(exitcode::OK);
                 },
                 Err(err_msg) => {
                     eprintln!("{}", err_msg);

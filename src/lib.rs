@@ -126,3 +126,46 @@ pub fn put(target_env_path: &Path, key: &str, new_value: &str) -> Result<(), Str
         Err(format!("Failed to open the file: {}", target_env_path_str))
     }
 }
+
+pub fn delete(target_env_path: &std::path::PathBuf, key: &str) -> Result<(), String> {
+    let target_env_path_str = target_env_path.to_str().expect("Fail to convert env path to string");
+
+    if let Ok(file) = fs::File::open(target_env_path) {
+        let reader = io::BufReader::new(file);
+
+        let mut pairs = vec![];
+
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                let env_pair = line_to_env_pair(&line);
+                if env_pair.key != key {
+                    pairs.push(env_pair);
+                }
+            } else {
+                return Err(format!("Failed to read a line in env file: {}", target_env_path_str));
+            }
+        }
+
+        if let Ok(mut tmpfile) = NamedTempFile::new() {
+            for pair in pairs {
+                let res = writeln!(tmpfile, "{}", pair.to_line());
+
+                if let Err(err) = res {
+                    return Err(format!("Failed to write the file for rewrite: {}", err));
+                }
+            }
+
+            let tmpfile_path = tmpfile.into_temp_path();
+
+            if let Err(err) = fs::copy(tmpfile_path, target_env_path) {
+                return Err(format!("Failed to write the file for rewrite: {}", err));
+            }
+        } else {
+            return Err("Failed to open the tempfile for rewrite".to_string());
+        }
+
+        Ok(())
+    } else {
+        Err(format!("Failed to open the file: {}", target_env_path_str))
+    }
+}
