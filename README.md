@@ -33,3 +33,9 @@ envdb scan <prefix>
 ```
 envdb put <key> <val>
 ```
+
+### Delete
+
+```
+envdb delete <key>
+```
