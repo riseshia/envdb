@@ -18,6 +18,7 @@ impl EnvPair {
 
 enum EnvPairParseError {
     Comment,
+    Empty,
     Unknown,
 }
 
@@ -27,6 +28,8 @@ fn line_to_env_pair(line: &str) -> Result<EnvPair, EnvPairParseError> {
             key: key.to_string(),
             value: value.to_string()
         })
+    } else if line.is_empty() {
+        Err(EnvPairParseError::Empty)
     } else if line.starts_with('#') {
         Err(EnvPairParseError::Comment)
     } else {
@@ -51,6 +54,9 @@ pub fn get(target_env_path: &Path, key: &str) -> Result<EnvPair, String> {
                             return Ok(env_pair)
                         },
                         Err(EnvPairParseError::Comment) => {
+                            continue
+                        },
+                        Err(EnvPairParseError::Empty) => {
                             continue
                         },
                         Err(EnvPairParseError::Unknown) => {
@@ -86,6 +92,9 @@ pub fn scan(target_env_path: &Path, key_prefix: &str) -> Result<Vec<EnvPair>, St
                             matched_pairs.push(env_pair)
                         },
                         Err(EnvPairParseError::Comment) => {
+                            continue
+                        },
+                        Err(EnvPairParseError::Empty) => {
                             continue
                         },
                         Err(EnvPairParseError::Unknown) => {
@@ -128,6 +137,9 @@ pub fn put(target_env_path: &Path, key: &str, new_value: &str) -> Result<(), Str
                         }
                     },
                     Err(EnvPairParseError::Comment) => {
+                        new_lines.push(line);
+                    },
+                    Err(EnvPairParseError::Empty) => {
                         new_lines.push(line);
                     },
                     Err(EnvPairParseError::Unknown) => {
@@ -188,6 +200,9 @@ pub fn delete(target_env_path: &std::path::PathBuf, key: &str) -> Result<(), Str
                         }
                     },
                     Err(EnvPairParseError::Comment) => {
+                        new_lines.push(line);
+                    },
+                    Err(EnvPairParseError::Empty) => {
                         new_lines.push(line);
                     },
                     Err(EnvPairParseError::Unknown) => {
