@@ -1,3 +1,4 @@
+# This is comment
 SOME_APP_KEY=app-key
 SOME_APP_SECRET=app-secret
 SSH_AUTH_SOCK_DOCKER_HOST=/some/host-socket.sock
